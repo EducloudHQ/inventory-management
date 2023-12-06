@@ -8,31 +8,36 @@ const tableName = process.env.TABLE_NAME as string;
 module.exports.lambdaHandler = async (
   event: any
 ): Promise<APIGatewayProxyResult> => {
+
   console.log("Lambda invocation event", { event });
   const body = JSON.parse(event.body);
+
   console.log(body.data.object.receipt_email);
+
   const email = body.data.object.receipt_email;
   const user: any = docClient.query({
     TableName: tableName,
-    KeyConditionExpression: `UserItemIndexPK = USER`,
-    FilterExpression: "email = :email",
+    KeyConditionExpression: `GSI1PK = :gsi1pk and GSI1SK = gsi1sk `,
     ProjectionExpression: "PK, SK",
     ExpressionAttributeValues: {
+      "gsi1pk": "USER",
+      "gsi1sk": `USER#${email}`,
       ":email": email,
     },
   });
   console.log("user:::  ", user);
 
   const paymentStatus: any = docClient.update({
-    TableName: process.env.TABLE_NAME as string,
+    TableName: tableName,
     Key: {
-      pk: user?.Items[0].pk,
+      PK: user?.Items[0].PK
     },
-    ConditionExpression: "PK = :email",
-    UpdateExpression: "set orderStatus = :orderStatus",
+    ConditionExpression: "begins_with(SK, :sk) and orderStatus = :oldOrderStatus",
+    UpdateExpression: "set orderStatus = :newOrderStatus",
     ExpressionAttributeValues: {
-      ":orderStatus": "PAYED",
-      ":userPK": user.Items[0].PK,
+      ":oldOrderStatus": "ORDERED",
+      ":newOrderStatus": "PAYED",
+      ":sk": "ORDER#",
     },
   });
   return paymentStatus;

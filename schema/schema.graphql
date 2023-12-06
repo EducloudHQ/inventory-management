@@ -33,9 +33,9 @@ type InventoryItem @aws_api_key @aws_cognito_user_pools {
   name: String!
   description: String!
   quantityInStock: Int!
+  price: Float!
   image: String
   images: [String]
-  price: Float!
   createdAt: AWSDateTime
   updatedAt: AWSDateTime
 }
@@ -47,15 +47,27 @@ type InventoryItemResult {
 
 type Order {
   id: ID!
-  items: [InventoryItem!]
   totalPrice: Float
   orderStatus: String
   totalQuantity: Int
+  items: [InventoryItem!]
   createdAt: AWSDateTime
   updatedAt: AWSDateTime
 }
 
+type OrderResult {
+  items: [Order!]!
+  nextToken: String
+}
+
 type PlaceOrder {
+  id: ID!
+  status: String
+  createdAt: AWSDateTime
+  updatedAt: AWSDateTime
+}
+
+type PlaceOrderResult {
   id: ID!
   status: String
   message: String
@@ -82,8 +94,6 @@ input CreateUserInput {
   name: String!
   email: String!
   userType: USERTYPE!
-  createAt: AWSDateTime
-  updatedAt: AWSDateTime
   phone: String
   address: String
 }
@@ -92,7 +102,8 @@ input CreateItemInput {
   name: String!
   description: String
   quantityInStock: Int!
-  images: String
+  image: String!
+  images: [String]
   userId: ID!
   price: Float!
 }
@@ -114,8 +125,7 @@ input AddItemToCartInput {
 
 input PlaceOrderInput {
   userId: ID!
-  total_price: Float
-  createAt: AWSDateTime
+  totalPrice: Float
 }
 
 type Mutation {
@@ -127,11 +137,11 @@ type Mutation {
 
   addItemToCart(input: AddItemToCartInput): InventoryItem!
 
-  placeOrder(input: PlaceOrderInput): PlaceOrder!
+  placeOrder(input: PlaceOrderInput): PlaceOrderResult!
 }
 
 type Subscription {
-  onCreateUser: User @aws_subscribe(mutations: ["createUser"]) # Basic Subscription filtering
-  onCreateItem: InventoryItem @aws_subscribe(mutations: ["createInventoryItem"]) # Basic subscription filtering
+  onCreateUser: User @aws_subscribe(mutations: ["createUser"])
+  onCreateItem: InventoryItem @aws_subscribe(mutations: ["createInventoryItem"])
   onPlaceOrder: PlaceOrder @aws_subscribe(mutations: ["placeOrder"])
 }

@@ -7,8 +7,6 @@ import { getSecret } from "@aws-lambda-powertools/parameters/secrets";
 import Stripe from "stripe";
 
 const sqs = new AWS.SQS();
-
-
 export async function main(
   event: any,
   context: Context
@@ -41,7 +39,7 @@ export async function main(
   ) {
     logger.info("The required event emitted");
     const eventIndex = event.Records.length - 1;
-    const itemLine = [];
+    const lineItems = [];
     const orderItems =
       event.Records[eventIndex].dynamodb?.NewImage?.orderItems?.L;
     console.log(orderItems);
@@ -53,22 +51,22 @@ export async function main(
           currency: "usd",
           unit_amount: parseFloat(item.M.unit_price.N) * 100,
           product_data: {
-            name: "item.M.name.S",
+            name: item.M.name.S,
             description: "test products description",
-            images: ["item.M.image.S"],
+            images: [item.M.image.S],
           },
         },
       };
 
-      itemLine.push(orderItem);
+      lineItems.push(orderItem);
     }
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
-      line_items: itemLine,
+      line_items: lineItems,
       mode: "payment",
       success_url: "http://www.educloud.academy",
-      customer_email: "body.email@gmail.com",
+      customer_email: "user.email@domain.com",
     });
 
     logger.info("Session data for user line items and checkout link", {
@@ -84,19 +82,6 @@ export async function main(
       .promise();
 
     logger.info("Lambda invocation event", { test });
-    // exec("google-chrome " + session.url);
-    // return {
-    //   status: "301",
-    //   statusDescription: `Redirecting to apex domain`,
-    //   headers: {
-    //     location: [
-    //       {
-    //         key: "Location",
-    //         value: session.url,
-    //       },
-    //     ],
-    //   },
-    // };
     return orderItems;
   } else {
     return event;

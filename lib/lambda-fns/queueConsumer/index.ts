@@ -1,6 +1,6 @@
 import { SQSEvent, SQSRecord, Context, SQSBatchResponse } from "aws-lambda";
 import { DynamoDB } from "aws-sdk";
-import { logger, metrics, tracer } from "../utils";
+// import { logger, metrics, tracer } from "../utils";
 import {
   BatchProcessor,
   EventType,
@@ -17,21 +17,21 @@ const recordHandler = async (record: SQSRecord): Promise<void> => {
     const order = JSON.parse(payload);
 
     console.log("Processed item", { order });
-    const userId = order.PK.S;
+    const userPK = order.PK.S;
     for (const item of order.orderItems.L) {
       console.log(item);
-      const element = item.M.SK;
+      const itemSK = item.M.SK.S;
       const params = {
         TableName: tableName,
         Key: {
-          PK: `${userId}`,
-          SK: `${element.S}`,
+          PK: `${userPK}`,
+          SK: `${itemSK}`,
         },
         UpdateExpression:
-          "set cartProductStatus = :status, UpdateOn = :Updated",
+          "set cartProductStatus = :status, updatedAt = :updated",
         ExpressionAttributeValues: {
           ":status": "ORDERED",
-          ":Updated": Date.now().toString(),
+          ":updated": Date.now().toString(),
         },
         ReturnValues: "UPDATED_NEW",
       };

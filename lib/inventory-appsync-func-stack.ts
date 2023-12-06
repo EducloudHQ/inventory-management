@@ -22,10 +22,6 @@ export class InventoryAppsyncFuncStack extends cdk.Stack {
       props.inventoryTable
     );
 
-    const passthrough = appsync.InlineCode.fromInline(`
-        // The before step
-        
-    `);
     const createUser = new appsync.AppsyncFunction(this, "create-user", {
       name: "createUser",
       api: props.api,
