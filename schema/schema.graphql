@@ -20,7 +20,7 @@ type User @aws_api_key @aws_cognito_user_pools {
   address: String
   items: [InventoryItem]
   createdAt: AWSDateTime
-  UpdatedAt: AWSDateTime
+  updatedAt: AWSDateTime
 }
 
 type UserResult {
@@ -29,11 +29,12 @@ type UserResult {
 }
 
 type InventoryItem @aws_api_key @aws_cognito_user_pools {
-  PK: ID!
+  id: ID!
   name: String!
   description: String!
   quantityInStock: Int!
-  images: String
+  image: String
+  images: [String]
   price: Float!
   createdAt: AWSDateTime
   updatedAt: AWSDateTime
@@ -70,7 +71,7 @@ type Query {
     @aws_api_key
     @aws_cognito_user_pools
 
-  getItem(id: String): InventoryItem @aws_api_key @aws_cognito_user_pools
+  getInventoryItem(id: String): InventoryItem @aws_api_key @aws_cognito_user_pools
 
   getUserInventoryItems(id: ID!, limit: Int, nextToken: String): User
     @aws_api_key
