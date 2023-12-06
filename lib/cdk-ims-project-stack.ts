@@ -75,7 +75,7 @@ export class CdkImsProjectStack extends cdk.Stack {
     });
     // DDB GSI
     const globalSecondaryIndexProps: dynamodb.GlobalSecondaryIndexProps = {
-      indexName: "UserItemIndex",
+      indexName: "listUsersAndInventoryItems",
       partitionKey: {
         name: "GSI1PK",
         type: dynamodb.AttributeType.STRING,
@@ -96,7 +96,7 @@ export class CdkImsProjectStack extends cdk.Stack {
     });
 
     const globalSecondaryIndexOrderProps: dynamodb.GlobalSecondaryIndexProps = {
-      indexName: "OrderItemIndex",
+      indexName: "listOrders",
       partitionKey: {
         name: "GSI1PK",
         type: dynamodb.AttributeType.STRING,
