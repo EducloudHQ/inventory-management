@@ -87,7 +87,7 @@ export class InventoryAppsyncFuncStack extends cdk.Stack {
       runtime: appsync.FunctionRuntime.JS_1_0_0,
       pipelineConfig: [getItems],
       code: appsync.Code.fromAsset(
-        join(__dirname, "./mappings/beforeAndAfter.js")
+        join(__dirname, "./mappings/_executeBeforeResolver.js")
       ),
     });
 
@@ -98,7 +98,7 @@ export class InventoryAppsyncFuncStack extends cdk.Stack {
       runtime: appsync.FunctionRuntime.JS_1_0_0,
       pipelineConfig: [getUserInventoryItems],
       code: appsync.Code.fromAsset(
-        join(__dirname, "./mappings/beforeAndAfter.js")
+        join(__dirname, "./mappings/_executeBeforeResolver.js")
       ),
     });
 
@@ -109,7 +109,7 @@ export class InventoryAppsyncFuncStack extends cdk.Stack {
       runtime: appsync.FunctionRuntime.JS_1_0_0,
       pipelineConfig: [getUsers],
       code: appsync.Code.fromAsset(
-        join(__dirname, "./mappings/beforeAndAfter.js")
+        join(__dirname, "./mappings/_executeBeforeResolver.js")
       ),
     });
 
@@ -118,7 +118,7 @@ export class InventoryAppsyncFuncStack extends cdk.Stack {
       typeName: "Mutation",
       fieldName: "createInventoryItem",
       code: appsync.Code.fromAsset(
-        join(__dirname, "./mappings/beforeAndAfter.js")
+        join(__dirname, "./mappings/_executeBeforeResolver.js")
       ),
       runtime: appsync.FunctionRuntime.JS_1_0_0,
       pipelineConfig: [createInventoryItem],
@@ -129,7 +129,7 @@ export class InventoryAppsyncFuncStack extends cdk.Stack {
       typeName: "Mutation",
       fieldName: "createUser",
       code: appsync.Code.fromAsset(
-        join(__dirname, "./mappings/beforeAndAfter.js")
+        join(__dirname, "./mappings/_executeBeforeResolver.js")
       ),
       runtime: appsync.FunctionRuntime.JS_1_0_0,
       pipelineConfig: [createUser],

@@ -13,7 +13,6 @@ import {
   DynamoEventSource,
   SqsEventSource,
 } from "aws-cdk-lib/aws-lambda-event-sources";
-import { CfnOutput } from "aws-cdk-lib";
 
 interface OrderAppsyncFuncStackProps extends cdk.StackProps {
   ordersTable: dynamodb.Table;
@@ -126,7 +125,7 @@ export class OrderAppsyncFuncStack extends cdk.Stack {
       typeName: "Mutation",
       fieldName: "addItemToCart",
       code: appsync.Code.fromAsset(
-        join(__dirname, "./mappings/beforeAndAfter.js")
+        join(__dirname, "./mappings/_executeBeforeResolver.js")
       ),
       runtime: appsync.FunctionRuntime.JS_1_0_0,
       pipelineConfig: [addItemToCart],
@@ -137,7 +136,7 @@ export class OrderAppsyncFuncStack extends cdk.Stack {
       typeName: "Mutation",
       fieldName: "placeOrder",
       code: appsync.Code.fromAsset(
-        join(__dirname, "./mappings/beforeAndAfter.js")
+        join(__dirname, "./mappings/_executeBeforeResolver.js")
       ),
       runtime: appsync.FunctionRuntime.JS_1_0_0,
       pipelineConfig: [placeOrder],
