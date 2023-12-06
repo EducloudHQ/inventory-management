@@ -52,64 +52,64 @@ export class OrderAppsyncFuncStack extends cdk.Stack {
       layers: [powertoolsLayer],
     });
 
-    // const process_order = new lambda.Function(this, "processOrder", {
-    //   handler: "processOrder.main",
-    //   runtime: lambda.Runtime.NODEJS_14_X,
-    //   code: lambda.Code.fromAsset(path.join(__dirname, "lambda-fns")),
-    //   environment: {
-    //     TABLE_NAME: props.ordersTable.tableName,
-    //     QUEUE_NAME: props.queue.queueName,
-    //     QUEUE_URL: props.queue.queueUrl,
-    //   },
-    //   layers: [powertoolsLayer],
-    //   tracing: Tracing.ACTIVE,
-    //   onSuccess: new SqsDestination(props.queue),
-    // });
-    // process_order.addEventSource(
-    //   new DynamoEventSource(props.ordersTable, {
-    //     startingPosition: lambda.StartingPosition.LATEST,
-    //   })
-    // );
+    const process_order = new lambda.Function(this, "processOrder", {
+      handler: "processOrder.main",
+      runtime: lambda.Runtime.NODEJS_14_X,
+      code: lambda.Code.fromAsset(path.join(__dirname, "lambda-fns")),
+      environment: {
+        TABLE_NAME: props.ordersTable.tableName,
+        QUEUE_NAME: props.queue.queueName,
+        QUEUE_URL: props.queue.queueUrl,
+      },
+      layers: [powertoolsLayer],
+      tracing: Tracing.ACTIVE,
+      onSuccess: new SqsDestination(props.queue),
+    });
+    process_order.addEventSource(
+      new DynamoEventSource(props.ordersTable, {
+        startingPosition: lambda.StartingPosition.LATEST,
+      })
+    );
 
-    // props.ordersTable.grantStreamRead(process_order);
-    // props.ordersTable.grantReadWriteData(process_order);
+    props.ordersTable.grantStreamRead(process_order);
+    props.ordersTable.grantReadWriteData(process_order);
 
-    // const streamConsumer = new lambda.Function(this, "streamConsumer", {
-    //   handler: "index.main",
-    //   runtime: lambda.Runtime.NODEJS_14_X,
-    //   code: lambda.Code.fromAsset(
-    //     path.join(__dirname, "lambda-fns/streamConsumer")
-    //   ),
-    //   environment: {
-    //     TABLE_NAME: props.ordersTable.tableName,
-    //     QUEUE_NAME: props.queue.queueName,
-    //     QUEUE_URL: props.queue.queueUrl,
-    //   },
-    //   layers: [powertoolsLayer],
-    //   tracing: Tracing.ACTIVE,
-    //   onSuccess: new SqsDestination(props.queue),
-    //   retryAttempts: 0,
-    // });
+    const streamConsumer = new lambda.Function(this, "streamConsumer", {
+      handler: "index.main",
+      runtime: lambda.Runtime.NODEJS_14_X,
+      code: lambda.Code.fromAsset(
+        path.join(__dirname, "lambda-fns/streamConsumer")
+      ),
+      environment: {
+        TABLE_NAME: props.ordersTable.tableName,
+        QUEUE_NAME: props.queue.queueName,
+        QUEUE_URL: props.queue.queueUrl,
+      },
+      layers: [powertoolsLayer],
+      tracing: Tracing.ACTIVE,
+      onSuccess: new SqsDestination(props.queue),
+      retryAttempts: 0,
+    });
 
-    // streamConsumer.addEventSource(
-    //   new DynamoEventSource(props.ordersTable, {
-    //     startingPosition: lambda.StartingPosition.LATEST,
-    //   })
-    // );
+    streamConsumer.addEventSource(
+      new DynamoEventSource(props.ordersTable, {
+        startingPosition: lambda.StartingPosition.LATEST,
+      })
+    );
 
-    // const lambdaUrl = streamConsumer.addFunctionUrl({
-    //   authType: lambda.FunctionUrlAuthType.NONE,
-    // });
+    const lambdaUrl = streamConsumer.addFunctionUrl({
+      authType: lambda.FunctionUrlAuthType.NONE,
+    });
 
-    // new CfnOutput(this, "FunctionUrl ", { value: lambdaUrl.url });
+    new CfnOutput(this, "FunctionUrl ", { value: lambdaUrl.url });
 
     queueConsumer.addEventSource(new SqsEventSource(props.queue));
 
     props.queue.grantConsumeMessages(queueConsumer);
     props.ordersTable.grantReadWriteData(queueConsumer);
-    // props.ordersTable.grantStreamRead(streamConsumer);
-    // props.ordersTable.grantReadWriteData(streamConsumer);
-    // props.queue.grantSendMessages(streamConsumer);
+    props.ordersTable.grantStreamRead(streamConsumer);
+    props.ordersTable.grantReadWriteData(streamConsumer);
+    props.queue.grantSendMessages(streamConsumer);
 
     const streamConsumerRole = new iam.Role(this, "streamConsumerRole", {
       assumedBy: new iam.ServicePrincipal("lambda.amazonaws.com"),
@@ -145,49 +145,49 @@ export class OrderAppsyncFuncStack extends cdk.Stack {
         }
     `);
 
-    // const addItemToCart = new appsync.AppsyncFunction(
-    //   this,
-    //   "addItemToCart",
-    //   {
-    //     name: "addItemToCart",
-    //     api: props.api,
-    //     dataSource: OrdersDS,
-    //     code: appsync.Code.fromAsset(
-    //       join(__dirname, "mappings/mutations/mutation.addItemToCart.js")
-    //     ),
-    //     runtime: appsync.FunctionRuntime.JS_1_0_0,
-    //   }
-    // );
-    // const placeOrder = new appsync.AppsyncFunction(this, "_placeOrder", {
-    //   name: "placeOrder",
-    //   api: props.api,
-    //   dataSource: OrdersDS,
-    //   code: appsync.Code.fromAsset(
-    //     join(__dirname, "mappings/mutations/mutation.placeOrder.js")
-    //   ),
-    //   runtime: appsync.FunctionRuntime.JS_1_0_0,
-    // });
+    const addItemToCart = new appsync.AppsyncFunction(
+      this,
+      "addItemToCart",
+      {
+        name: "addItemToCart",
+        api: props.api,
+        dataSource: OrdersDS,
+        code: appsync.Code.fromAsset(
+          join(__dirname, "mappings/mutations/mutation.addItemToCart.js")
+        ),
+        runtime: appsync.FunctionRuntime.JS_1_0_0,
+      }
+    );
+    const placeOrder = new appsync.AppsyncFunction(this, "_placeOrder", {
+      name: "placeOrder",
+      api: props.api,
+      dataSource: OrdersDS,
+      code: appsync.Code.fromAsset(
+        join(__dirname, "mappings/mutations/mutation.placeOrder.js")
+      ),
+      runtime: appsync.FunctionRuntime.JS_1_0_0,
+    });
 
-    // new appsync.Resolver(this, "pipeline-resolver-add-item-to-cart", {
-    //   api: props.api,
-    //   typeName: "Mutation",
-    //   fieldName: "addItemToCart",
-    //   code: appsync.Code.fromAsset(
-    //     join(__dirname, "./mappings/beforeAndAfter.js")
-    //   ),
-    //   runtime: appsync.FunctionRuntime.JS_1_0_0,
-    //   pipelineConfig: [addItemToCart],
-    // });
+    new appsync.Resolver(this, "pipeline-resolver-add-item-to-cart", {
+      api: props.api,
+      typeName: "Mutation",
+      fieldName: "addItemToCart",
+      code: appsync.Code.fromAsset(
+        join(__dirname, "./mappings/beforeAndAfter.js")
+      ),
+      runtime: appsync.FunctionRuntime.JS_1_0_0,
+      pipelineConfig: [addItemToCart],
+    });
 
-    // new appsync.Resolver(this, "pipeline-resolver-place_order", {
-    //   api: props.api,
-    //   typeName: "Mutation",
-    //   fieldName: "placeOrder",
-    //   code: appsync.Code.fromAsset(
-    //     join(__dirname, "./mappings/beforeAndAfter.js")
-    //   ),
-    //   runtime: appsync.FunctionRuntime.JS_1_0_0,
-    //   pipelineConfig: [placeOrder],
-    // });
+    new appsync.Resolver(this, "pipeline-resolver-place_order", {
+      api: props.api,
+      typeName: "Mutation",
+      fieldName: "placeOrder",
+      code: appsync.Code.fromAsset(
+        join(__dirname, "./mappings/beforeAndAfter.js")
+      ),
+      runtime: appsync.FunctionRuntime.JS_1_0_0,
+      pipelineConfig: [placeOrder],
+    });
   }
 }
